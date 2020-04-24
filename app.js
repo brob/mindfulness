@@ -1,4 +1,7 @@
 import createAuth0Client from '@auth0/auth0-spa-js';
+var faunadb = require('faunadb'),
+q = faunadb.query;
+const client = new faunadb.Client({ secret: "fnADqDZd9BACFNF3YrwId76AFmDbFwZ2OUnnVkp2" })
 
 let auth0 = null;
 const configureClient = async () => {
@@ -30,7 +33,10 @@ window.onload = async () => {
 
   if (isAuthenticated) {
     // show the gated content
-    console.log(await auth0.getUser());
+    const userObj = await auth0.getUser();
+
+    console.dir(userObj.sub)
+    renderToday();
     return;
   }
 
@@ -94,62 +100,105 @@ function setWords(title, description, date) {
     descElem.innerText = description;
 }
 
-function actualCurrent(currentItem) {
-    //Check date
-    console.log(currentItem)
-    let today = new Date().setHours(0,0,0,0);
-    let itemDate = new Date(currentItem.date).setHours(0, 0, 0, 0);
-    console.log(today, itemDate);
-    return today == itemDate
-}
 
-function getCurrent() {
 
-    return MY_MIND.filter(item => item.isCurrent)[0]
-}
 
-function buildCurrent() {
-    const newMindful = MINDFUL_THINGS[Math.floor(Math.random()*MINDFUL_THINGS.length)];
+function buildCurrent(data) {
     console.log('building current');
-    console.dir(newMindful);
-    newMindful.isCurrent = true;
-    newMindful.date = new Date().setHours(0, 0, 0, 0);
-    console.dir(newMindful);
+    let today = new Date();
+    today.setHours(0, 0, 0, 0);
+    data.date = today;
+    console.log(data)
 
-    MY_MIND.unshift(newMindful);
-    return newMindful
+    return data
+}
+
+function getRandomMindful() {
+
 }
 
 function storeCurrent(currentItem) {
     window.localStorage.setItem('currentMindfulItem', JSON.stringify(currentItem));
     // Push to database
-
 }
 
 function preRender() {
-    if (!currentMindful && !actualCurrent(getCurrent())) {
-        console.log('in check for localstorage')
+    // if (!currentMindful && !actualCurrent(getCurrent())) {
+    //     console.log('in check for localstorage')
 
-        storeCurrent(buildCurrent());
-        return;
-    } 
-    if (!actualCurrent(currentMindful)) {
-        console.log('in check for current date')
-        storeCurrent(buildCurrent());
-        return
-    }
-    console.log(currentMindful);
+    //     storeCurrent(buildCurrent());
+    //     return;
+    // } 
+    // if (!actualCurrent(currentMindful)) {
+    //     console.log('in check for current date')
+    //     storeCurrent(buildCurrent());
+    //     return
+    // }
+    // console.log(currentMindful);
 }
 
+function checkCurrentDate(mindfulObj) {
+    if (mindfulObj.date) {
+        let today = new Date().setHours(0,0,0,0);
+        let itemDate = new Date(mindfulObj.date).setHours(0, 0, 0, 0);
+        console.log('in check for localstorage')    
+        console.log(today, itemDate);    
+        return today == itemDate;
+    }
 
+    return false
+}
 
-function render() {
-    preRender();
-    const { title, description, date, color, textColor } = currentMindful;
+function render(mindfulObj) {
+    const { title, description, date, color, textColor } = mindfulObj;
 
     setColors(color, textColor);
     setWords(title, description, date);
 }
+async function renderToday() {
+    if (currentMindful && checkCurrentDate(currentMindful)) {
+        console.log("check current date is true")
+        render(currentMindful)
+        return 
+    } else {
+        currentMindful = await getLatestFromFauna();
+        console.log('current mindful set to latestfromfauna', currentMindful)
+        if (checkCurrentDate(currentMindful)) {
+            console.log('fauna time is today')
+            storeCurrent(currentMindful);
+            render(currentMindful);
+        } else {
+            
+            console.log('fauna time is not today');
+            let randomMindful = await getRandomMindfulFromFauna();
+            let builtItem = buildCurrent(randomMindful.data)
+            storeCurrent(builtItem);
+            render(builtItem)
+        }
+        
+        return
+    }
+}
 
+async function getLatestFromFauna(userObj) {
 
+    let latestFromFauna = await client.query(
+        q.Call(
+            q.Function("getLatestUserMindful"),
+            "auth0|5e9f628439d9460ca08e8b86"
+        )
+    )
+    console.log(latestFromFauna);
+    return { date: latestFromFauna.latestTime, ...latestFromFauna.latestMindful }
+}
+async function getRandomMindfulFromFauna() {
+    let mindfulThings = await client.query(
+        q.Paginate(
+            q.Documents(q.Collection('mindful_things'))
+        )
+    )
+    
+    let randomMindful = mindfulThings.data[Math.floor(Math.random()*mindfulThings.data.length)]
+    return client.query(q.Get(randomMindful))
+}
 document.addEventListener('DOMContentLoaded', render)

@@ -10,9 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@auth0/auth0-spa-js": "^1.7.0",
+    "@auth0/auth0-spa-js": "1.6.4",
     "@babel/runtime": "^7.9.2",
-    "babel-polyfill": "^6.26.0"
+    "babel-polyfill": "^6.26.0",
+    "faunadb": "^2.13.1",
+    "parcel": "^1.12.4"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
