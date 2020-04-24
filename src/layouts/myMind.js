@@ -9,6 +9,7 @@ function changeToMission() {
         <h2 class="topic__title"></h2>
         <time class="topic__date"></time>
         <p class="topic__description"></p>
+        <button id="btn-logout" onclick="logout()">Log Out</button> 
     </main>
     `
     pageBody.innerHTML = newHTML;

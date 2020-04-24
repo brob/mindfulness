@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "serve": "npx parcel index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,10 +15,12 @@
     "@babel/runtime": "^7.9.2",
     "babel-polyfill": "^6.26.0",
     "faunadb": "^2.13.1",
+    "netlify-lambda": "^1.6.3",
     "parcel": "^1.12.4"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
-    "@babel/plugin-transform-runtime": "^7.9.0"
+    "@babel/plugin-transform-runtime": "^7.9.0",
+    "dotenv": "^8.2.0"
   }
 }

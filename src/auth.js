@@ -18,7 +18,6 @@ const loadAuth = async () => {
       authUpdateUI();
     
     const isAuthenticated = await auth0.isAuthenticated();
-
     if (isAuthenticated) {
         // show the gated content
         currentUser = await auth0.getUser();
@@ -45,8 +44,6 @@ const loadAuth = async () => {
 
 const authUpdateUI = async () => {
     const isAuthenticated = await auth0.isAuthenticated();
-  
-    document.getElementById("btn-login").disabled = isAuthenticated;
 };
 
 const login = async () => {
