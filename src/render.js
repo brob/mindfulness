@@ -1,6 +1,6 @@
 import { setColors, setWords } from './showMindful'
 import { checkCurrentDate, storeCurrent } from './utils'
-import { getLatestFromFauna, getRandomMindfulFromFauna } from './fauna'
+import { getLatestFromFauna, getRandomMindfulFromFauna, storeMindfulInFauna } from './fauna'
 import { currentUser } from './auth';
 
 
@@ -32,10 +32,15 @@ async function renderToday() {
         render(currentMindful)
         return 
     } else {
-        const fromFauna = await getLatestFromFauna(currentUser);
+        let fromFauna
+        try {
+            fromFauna = await getLatestFromFauna(currentUser);
+        } catch (error) {
+            
+        }
         console.log('current mindful set to latestfromfauna', fromFauna)
         console.log(fromFauna);
-        if (checkCurrentDate(fromFauna.date)) {
+        if (fromFauna && checkCurrentDate(fromFauna.date)) {
             console.log('fauna time is today')
             storeCurrent(fromFauna);
             render(fromFauna);
@@ -44,7 +49,7 @@ async function renderToday() {
             let randomMindful = await getRandomMindfulFromFauna();
             let builtItem = buildCurrent(randomMindful)
             storeCurrent(builtItem);
-            storeMindfulInFauna(currentItem);
+            storeMindfulInFauna(builtItem);
             render(builtItem)
         }
         
