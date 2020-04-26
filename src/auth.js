@@ -21,7 +21,7 @@ const loadAuth = async () => {
     if (isAuthenticated) {
         // show the gated content
         currentUser = await auth0.getUser();
-
+        console.log(currentUser)
         changeToMission();
         renderToday();
         return;

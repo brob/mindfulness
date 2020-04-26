@@ -19,6 +19,22 @@ async function getLatestFromFauna(userObj) {
     return { date: latestFromFauna.latestTime, ...latestFromFauna.latestMindful }
 }
 
+async function getSomeFromFauna(userObj, count) {
+    let faunaRes = await client.query(
+        q.Call("getSomeUserMindfuls", userObj.sub, count)
+    )   
+    console.log(faunaRes); 
+    return faunaRes
+
+}
+
+async function buildQueryRefs(refArray) {
+    let dataFromRefs = refArray.map( ref => {
+        return q.Get(ref)
+    })
+    return dataFromRefs
+}
+
 async function getRandomMindfulFromFauna() {
     let mindfulThings = await client.query(
         q.Paginate(
@@ -50,4 +66,4 @@ async function storeMindfulInFauna(newMindful) {
 
 }
 
-export {getLatestFromFauna, getRandomMindfulFromFauna, storeMindfulInFauna}
+export {getLatestFromFauna, getRandomMindfulFromFauna, getSomeFromFauna, storeMindfulInFauna}

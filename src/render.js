@@ -2,6 +2,7 @@ import { setColors, setWords } from './showMindful'
 import { checkCurrentDate, storeCurrent } from './utils'
 import { getLatestFromFauna, getRandomMindfulFromFauna, storeMindfulInFauna } from './fauna'
 import { currentUser } from './auth';
+import {getSomeFromFauna} from './fauna';
 
 
 
@@ -25,8 +26,11 @@ function render(mindfulObj) {
 
     setColors(color, textColor);
     setWords(title, description, date);
+
+
 }
 async function renderToday() {
+
     if (currentMindful && checkCurrentDate(currentMindful.date * 1)) {
         console.log("check current date is true")
         render(currentMindful)
