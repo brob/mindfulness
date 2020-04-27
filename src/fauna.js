@@ -5,17 +5,14 @@ q = faunadb.query;
 const client = new faunadb.Client({ secret: "fnADqDZd9BACFNF3YrwId76AFmDbFwZ2OUnnVkp2" })
 
 
-
-
 async function getLatestFromFauna(userObj) {
-    console.log(userObj);
     let latestFromFauna = await client.query(
         q.Call(
             q.Function("getLatestUserMindful"),
             userObj.sub
         )
     )
-    console.log(latestFromFauna);
+
     return { date: latestFromFauna.latestTime, ...latestFromFauna.latestMindful }
 }
 
@@ -23,9 +20,8 @@ async function getSomeFromFauna(userObj, count) {
     let faunaRes = await client.query(
         q.Call("getSomeUserMindfuls", userObj.sub, count)
     )   
-    console.log(faunaRes); 
-    return faunaRes
 
+    return faunaRes
 }
 
 async function buildQueryRefs(refArray) {
@@ -47,12 +43,11 @@ async function getRandomMindfulFromFauna() {
 }
 
 async function storeMindfulInFauna(newMindful) {
-    console.log(newMindful, currentUser);
     const dataForFauna = {
         user: currentUser.sub,
         faunaRef: newMindful.ref
     }
-    console.log('fauna data', dataForFauna);
+
     let faunaRes = await client.query(
         q.Create(
             q.Collection('user_things'),
@@ -61,9 +56,8 @@ async function storeMindfulInFauna(newMindful) {
             }
         )
     )
-    console.log(faunaRes);
-    return faunaRes
 
+    return faunaRes
 }
 
 export {getLatestFromFauna, getRandomMindfulFromFauna, getSomeFromFauna, storeMindfulInFauna}

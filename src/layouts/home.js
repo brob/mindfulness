@@ -1,6 +1,5 @@
 import {pageBody} from '../showMindful';
 
-
 function changeToHome() {
     const newHTML = `
         <h1>Be Mindful</h1>
@@ -9,6 +8,5 @@ function changeToHome() {
     `
     pageBody.innerHTML = newHTML;
 }
-
 
 export { changeToHome }

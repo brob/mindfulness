@@ -3,20 +3,21 @@
     padding: 0;
     box-sizing: border-box;
 }
+
 body {
     min-height: 99vh;
     display: flex;
-
 }
 
-.hidden {
-    display: none;
-  }
-  
-label {
-margin-bottom: 10px;
-display: block;
+button {
+    background: transparent;
+    border: 2px solid var(--foreground-color, darkblue);
+    display: inline-block;
+    padding: .5rem 2rem;
+    color: var(--foreground-color, darkblue);
+    border-radius: 5px;
 }
+
 .mindful {
     flex: 1;
     background-color: var(--background-color, lightblue);
@@ -25,4 +26,12 @@ display: block;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.mindful > * {
+    max-width: 65ch;
+}
+
+.mindful article {
+    margin-bottom: 1rem;
 }

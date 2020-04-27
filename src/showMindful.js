@@ -11,8 +11,11 @@ function setWords(title, description, date) {
     const timeElem = document.querySelector('.topic__date');
     const descElem = document.querySelector('.topic__description');
 
+    const dateObj = new Date(date);
+    let dateString = `${dateObj.toLocaleString('default', {weekday: 'long'})}, ${dateObj.toLocaleString('default', { month: 'long' })} ${dateObj.getDate()}`
+    
     titleElem.innerText = title;
-    timeElem.innerText = date;
+    timeElem.innerText = dateString;
     descElem.innerText = description;
 }
 

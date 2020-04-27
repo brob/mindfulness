@@ -13,18 +13,18 @@ const configureClient = async () => {
 };
 
 const loadAuth = async () => {
-     await configureClient();
-       
-      authUpdateUI();
+    await configureClient();      
     
     const isAuthenticated = await auth0.isAuthenticated();
     if (isAuthenticated) {
         // show the gated content
         currentUser = await auth0.getUser();
-        console.log(currentUser)
+
         changeToMission();
         renderToday();
         return;
+    } else {
+        changeToHome();
     }
 
     const query = window.location.search;
@@ -34,17 +34,13 @@ const loadAuth = async () => {
         await auth0.handleRedirectCallback();
         changeToMission();
        
-        authUpdateUI();
+        currentUser = await auth0.getUser();
         renderToday();
 
         // Use replaceState to redirect the user away and remove the querystring parameters
         window.history.replaceState({}, document.title, "/");
     }
 }
-
-const authUpdateUI = async () => {
-    const isAuthenticated = await auth0.isAuthenticated();
-};
 
 const login = async () => {
     await auth0.loginWithRedirect({
@@ -58,4 +54,4 @@ const logout = async () => {
     changeToHome();
 }
 
-export { auth0, loadAuth, currentUser, authUpdateUI, login, logout }
+export { auth0, loadAuth, currentUser, login, logout }
