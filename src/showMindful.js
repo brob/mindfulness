@@ -3,7 +3,6 @@ const pageBody = document.querySelector('.mindful');
 function setColors(backgroundColor, foregroundColor) {
     pageBody.style.setProperty('--background-color', backgroundColor);
     pageBody.style.setProperty('--foreground-color', foregroundColor);
-    console.log(backgroundColor)
 }
 
 function setWords(title, description, date) {

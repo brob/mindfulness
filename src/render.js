@@ -23,8 +23,7 @@ function render(mindfulObj) {
     setWords(title, description, date);
 }
 async function renderToday() {
-    if (currentMindful && checkCurrentDate(currentMindful.date * 1)) {
-        console.log("check current date is true")
+    if (currentMindful && checkCurrentDate(currentMindful)) {
         render(currentMindful)
         return 
     } else {
@@ -32,10 +31,10 @@ async function renderToday() {
         try {
             fromFauna = await getLatestFromFauna(currentUser);
         } catch (error) {
-            
+            console.error(error)
+            fromFauna.error = error
         }
-        console.log(fromFauna);
-        if (fromFauna && checkCurrentDate(fromFauna.date)) {
+        if (fromFauna && !fromFauna.error && checkCurrentDate(fromFauna)) {
             storeCurrent(fromFauna);
             render(fromFauna);
         } else {
