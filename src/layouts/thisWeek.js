@@ -1,10 +1,10 @@
-import { currentUser } from '../auth';
 import { getSomeFromFauna } from '../fauna';
 import { changeToMission } from './myMind';
 
 const itemCount = 5;
 async function buildItems() {
-    let latestMinds = await getSomeFromFauna(currentUser, itemCount);
+    let latestMinds = await getSomeFromFauna(itemCount);
+
     let mindMarkup = latestMinds.map(item => {
         return `
             <article>
@@ -12,15 +12,17 @@ async function buildItems() {
                 <p>${item.description}
             </article>
         `
-    }).join('')
+    });
     return mindMarkup
 }
 
 async function thisWeek() {
     const pageBody = await document.querySelector('.mindful');
+    const builtItems = await buildItems();
+    console.log(builtItems);
     let newHTML = `
-        <h2>Past ${itemCount} Missions</h2>
-        ${await buildItems()}
+        <h2>Past ${builtItems.length} Missions</h2>
+        ${await builtItems.join('')}
         <button id="show-mind">Back</button>
     `
     pageBody.innerHTML = newHTML;

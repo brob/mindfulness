@@ -1,20 +1,9 @@
 import { setColors, setWords } from './showMindful'
-import { checkCurrentDate, storeCurrent } from './utils'
-import { getLatestFromFauna, getRandomMindfulFromFauna, storeMindfulInFauna } from './fauna'
+import { checkCurrentDate, storeCurrent, buildCurrent } from './utils'
+import { getLatestFromFauna, getRandomMindfulFromFauna } from './fauna'
 import { currentUser } from './auth';
 
 let currentMindful = window.localStorage.getItem('currentMindfulItem') ? JSON.parse(window.localStorage.getItem('currentMindfulItem')) : null;
-
-function buildCurrent(fullData) {
-    let data = fullData.data;
-    let today = new Date();
-    today.setHours(0, 0, 0, 0);
-    data.date = today;
-    data.ref = fullData.ref.value.id;
-
-    return data
-}
-
 
 function render(mindfulObj) {
     const { title, description, date, color, textColor } = mindfulObj;
@@ -35,14 +24,17 @@ async function renderToday() {
             fromFauna.error = error
         }
         if (fromFauna && !fromFauna.error && checkCurrentDate(fromFauna)) {
+            console.log('from fauna')
+
             storeCurrent(fromFauna);
             render(fromFauna);
         } else {
-            let randomMindful = await getRandomMindfulFromFauna();
-            let builtItem = buildCurrent(randomMindful)
+            let newItem = await getRandomMindfulFromFauna(currentUser);
+            let builtItem = await buildCurrent(newItem);
+            
             storeCurrent(builtItem);
-            storeMindfulInFauna(builtItem);
-            render(builtItem)
+            render(builtItem);
+            
         }
         
         return

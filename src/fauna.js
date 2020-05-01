@@ -1,42 +1,42 @@
-import { currentUser, client } from './auth';
+import { currentUser, checkUser } from './auth';
 const AUTH_PROP_KEY = "https://faunad.com/id/secret";
 var faunadb = require('faunadb'),
 q = faunadb.query;
-
 
 async function getUserClient(currentUser) {
     return new faunadb.Client({ secret: currentUser[AUTH_PROP_KEY]})
 }
 
-
 async function getLatestFromFauna(userObj) {
     const client = await getUserClient(userObj);
 
-    let latestFromFauna
     try {
-        latestFromFauna = await client.query(
-            q.Call("getLatestUserMindful", q.Identity())
+        let latestFromFauna = await client.query(
+            q.Call("getLatestUserMindful")
         )
-        return { date: latestFromFauna.latestTime / 1000, ...latestFromFauna.latestMindful }
-    } catch(err) {
-        latestFromFauna.error
-        return latestFromFauna
+        
+        if (latestFromFauna.err) return latestFromFauna.err
 
+        return { date: latestFromFauna.latestTime / 1000, ...latestFromFauna.latestMindful.mindful }
+    } catch(err) {
+        latestFromFauna.error = err
+        return latestFromFauna
     }
 }
 
-async function getSomeFromFauna(userObj, count) {
-    const client = await getUserClient(currentUser);
+async function getSomeFromFauna(count) {
+    const authUser = await checkUser();
+    const client = await getUserClient(authUser);
 
     let faunaRes = await client.query(
-        q.Call("getSomeUserMindfuls", q.Identity(), count)
+        q.Call("getSomeUserMindfuls", count)
     )   
 
     return faunaRes
 }
 
-async function getRandomMindfulFromFauna() {
-    const client = await getUserClient(currentUser);
+async function getRandomMindfulFromFauna(userObj) {
+    const client = await getUserClient(userObj);
 
     try {
         let mindfulThings = await client.query(
@@ -45,30 +45,13 @@ async function getRandomMindfulFromFauna() {
             )
         )
         let randomMindful = mindfulThings.data[Math.floor(Math.random()*mindfulThings.data.length)];
+        let creation = await client.query(q.Call('addUserMindful', randomMindful));
         
-        return await client.query(q.Get(randomMindful))
+        return creation.data.mindful;
 
     } catch (error) {
         console.log(error)
     }   
 }
 
-async function storeMindfulInFauna(newMindful) {
-    const client = await getUserClient(currentUser);
-    const dataForFauna = {
-        user: await client.query(q.Identity()),
-        faunaRef: newMindful.ref
-    }
-    try {
-    let faunaRes = await client.query(
-        q.Call('addUserMindful', dataForFauna)
-    )
-    return faunaRes
-
-    } catch (error) {
-        console.log(error);
-    }
-
-}
-
-export {getLatestFromFauna, getRandomMindfulFromFauna, getSomeFromFauna, storeMindfulInFauna}
+export {getLatestFromFauna, getRandomMindfulFromFauna, getSomeFromFauna}
